@@ -43,6 +43,8 @@ export interface Traits {
   energi: number; // grundtempo
 }
 
+import type { TrackId } from "./music.ts";
+
 export interface Consultant {
   id: string;
   name: string;
@@ -59,6 +61,7 @@ export interface Consultant {
   quirkText: string;
   desk: [number, number] | null; // fast plats (kontorsstol), null = flexar
   color: string; // namnskyltens accentfärg
+  music: { fav: TrackId; hate: TrackId }; // musiksmak (styr reaktioner och musikkrig)
 }
 
 const SKIN_LIGHT = "#f2d0b4";
@@ -89,6 +92,7 @@ export const CONSULTANTS: Consultant[] = [
     quirkText: "Gör om allt till en workshop – även lunchvalet.",
     desk: [23, 30],
     color: "#7fd1a8",
+    music: { fav: "lofi", hate: "hiss" },
   },
   {
     id: "david",
@@ -111,6 +115,7 @@ export const CONSULTANTS: Consultant[] = [
     quirkText: "Gör varje liten sak till en transformationsresa i tre faser.",
     desk: null,
     color: "#c9b8ff",
+    music: { fav: "jazz", hate: "chiptune" },
   },
   {
     id: "ellen",
@@ -132,6 +137,7 @@ export const CONSULTANTS: Consultant[] = [
     quirkText: "Gör riskanalyser på allt, även på fikat.",
     desk: [26, 16],
     color: "#ff9a62",
+    music: { fav: "ambient", hate: "disco" },
   },
   {
     id: "emil",
@@ -154,6 +160,7 @@ export const CONSULTANTS: Consultant[] = [
     quirkText: "Föreslår en AI-agent för allt. Glider ibland över till engelska.",
     desk: [23, 33],
     color: "#7fb7ff",
+    music: { fav: "synthwave", hate: "vals" },
   },
   {
     id: "jacqline",
@@ -175,6 +182,7 @@ export const CONSULTANTS: Consultant[] = [
     quirkText: "Plockar upp en ny hobby varje timme – jonglering, origami, beatbox.",
     desk: [23, 39],
     color: "#ffd86b",
+    music: { fav: "chiptune", hate: "ambient" },
   },
   {
     id: "jessica",
@@ -196,6 +204,7 @@ export const CONSULTANTS: Consultant[] = [
     quirkText: "Mäter kontrastförhållanden på allt – kaffe, växter, kollegor.",
     desk: [24, 3],
     color: "#9fe0e0",
+    music: { fav: "lofi", hate: "synthwave" },
   },
   {
     id: "johanna",
@@ -217,6 +226,7 @@ export const CONSULTANTS: Consultant[] = [
     quirkText: "Kartlägger kundresan för allt – även toalettbesöket.",
     desk: [28, 36],
     color: "#a0c4ff",
+    music: { fav: "jazz", hate: "disco" },
   },
   {
     id: "karolina",
@@ -238,6 +248,7 @@ export const CONSULTANTS: Consultant[] = [
     quirkText: "Spår framtida trender i allt som händer på kontoret.",
     desk: null,
     color: "#ff9fd0",
+    music: { fav: "ambient", hate: "chiptune" },
   },
   {
     id: "linn",
@@ -259,6 +270,7 @@ export const CONSULTANTS: Consultant[] = [
     quirkText: "Går runt med VR-glasögon och krockar ibland med kakelugnen.",
     desk: [29, 16],
     color: "#b3e88f",
+    music: { fav: "synthwave", hate: "hiss" },
   },
   {
     id: "liza",
@@ -280,6 +292,7 @@ export const CONSULTANTS: Consultant[] = [
     quirkText: "Kallar till spontana all-hands – även när bara två personer är på plats.",
     desk: [29, 21],
     color: "#ffb3c1",
+    music: { fav: "disco", hate: "ambient" },
   },
   {
     id: "lotta",
@@ -301,6 +314,7 @@ export const CONSULTANTS: Consultant[] = [
     quirkText: "Tar alla möten gående – i cirklar genom hela våningen.",
     desk: [26, 21],
     color: "#f5e6a8",
+    music: { fav: "disco", hate: "lofi" },
   },
   {
     id: "mathias",
@@ -322,6 +336,7 @@ export const CONSULTANTS: Consultant[] = [
     quirkText: "Berättar om kontoret som om det vore en Netflix-serie – med förtexter.",
     desk: [24, 8],
     color: "#a8b4ff",
+    music: { fav: "synthwave", hate: "vals" },
   },
   {
     id: "mattias",
@@ -343,6 +358,7 @@ export const CONSULTANTS: Consultant[] = [
     quirkText: "A/B-testar allt. Misstänker att han lever i ett spel.",
     desk: [28, 30],
     color: "#ffc58a",
+    music: { fav: "hiss", hate: "chiptune" },
   },
   {
     id: "pedram",
@@ -364,6 +380,7 @@ export const CONSULTANTS: Consultant[] = [
     quirkText: "Gör små psykologiexperiment på kollegorna. Alltid positiv.",
     desk: [28, 33],
     color: "#8fd3ff",
+    music: { fav: "disco", hate: "ambient" },
   },
   {
     id: "rhoda",
@@ -385,6 +402,7 @@ export const CONSULTANTS: Consultant[] = [
     quirkText: "Kodar i smyg. Har en gång refaktorerat kaffemaskinen.",
     desk: [27, 3],
     color: "#d0a8ff",
+    music: { fav: "chiptune", hate: "jazz" },
   },
   {
     id: "sara_d",
@@ -406,6 +424,7 @@ export const CONSULTANTS: Consultant[] = [
     quirkText: "Skriver löpsedlar om allt som händer på kontoret.",
     desk: null,
     color: "#ffe08a",
+    music: { fav: "vals", hate: "synthwave" },
   },
   {
     id: "sara_h",
@@ -427,6 +446,7 @@ export const CONSULTANTS: Consultant[] = [
     quirkText: "Skriver om allas meningar till bättre tone of voice.",
     desk: [28, 39],
     color: "#ff8a8a",
+    music: { fav: "jazz", hate: "lofi" },
   },
   {
     id: "sofia",
@@ -448,6 +468,7 @@ export const CONSULTANTS: Consultant[] = [
     quirkText: "Skickar enkäter till alla, även krukväxterna.",
     desk: [23, 36],
     color: "#7fe0b8",
+    music: { fav: "lofi", hate: "disco" },
   },
   {
     id: "staffan",
@@ -469,6 +490,7 @@ export const CONSULTANTS: Consultant[] = [
     quirkText: "Webbnostalgiker – saknar Flash, gästböcker och <marquee>.",
     desk: [27, 8],
     color: "#7fc0ff",
+    music: { fav: "chiptune", hate: "synthwave" },
   },
 ];
 

@@ -533,6 +533,7 @@ export const POKE_VOICE: Record<string, string[]> = {
   doormat: ["VÄLKOMMEN. Torka fötterna. Torka själen."],
   monitor: ["Skärmen visar Figma. 4000 frames. Alla heter 'Frame'."],
   desk: ["Under skrivbordet: tre kaffekoppar och en dröm."],
+  jukebox: ["♪ Nu spelas: {track}. Bara konsulter får byta låt. ♪", "*bzzt* Jukeboxen vill ha en tjuga och en konsult.", "Jukeboxen blinkar förföriskt."],
   default: ["*knack knack*", "Inget händer.", "Det kändes som att det tittade tillbaka."],
 };
 
@@ -653,3 +654,22 @@ export const NIGHT_LINES = ["Varför är jag fortfarande här?", "Nattskiftet ä
 export const MORNING_LINES = ["Godmorgon allihopa!", "Kaffe först, existens sen.", "Ny dag, nya post-its!"];
 export const LEET = ["13:37!!", "Det är leet o'clock!", "1337 – en tid för hjältar."];
 export const FRIDAY_LINES = ["Det är FREDAG!", "Fredagsfika om fem minuter!", "Har någon sagt AW?"];
+
+// ---------------------------------------------------------------------------
+// Musik
+export const MUSIC_PICK: Record<string, string[]> = {
+  lofi: ["Lo-fi. För fokus. Och för att jag är trött.", "Lugna beats, lugna sinnen.", "Lo-fi är designens bästa vän."],
+  disco: ["DISCO! Upp med händerna!", "Det är alltid fredag när det är disco.", "Glitterkulan är laddad!"],
+  jazz: ["Lite jazz till kaffet, kanske?", "Swing it, Barnhusgatan!", "Jazz. För att vi är sofistikerade. Ibland."],
+  vals: ["En vals från 1906. Kakelugnen kommer älska det.", "Ett-två-tre, ett-två-tre...", "Dragspel! Som farmor brukade spela."],
+  ambient: ["Lite ambient. Föreställ er att ni är en server.", "Andas in. Andas ut. Rendera.", "Serverrummets egna toner."],
+  chiptune: ["8-bit! Som på Netscape-tiden!", "Pling-plong-power!", "Det här är ljudet av min barndom."],
+  synthwave: ["Synthwave. Föreställ er neonljus över Norra Bantorget.", "Det här är soundtracket till vår roadmap.", "80-talet ringde. Jag svarade."],
+  hiss: ["Hissmusik. En hyllning till hissen som aldrig kommer.", "Bossa nova. Ni står i kö. Er placering är: 1906.", "Lugn. Hissen kommer snart. Den kommer inte."],
+  off: ["Tystnad. Äntligen.", "Jag stänger av. Mina öron behöver en paus.", "Ljudet av ingenting. Underskattat."],
+};
+export const MUSIC_LOVE = ["ÄNTLIGEN {track}!", "Det här är MIN låt!", "Höj! HÖJ!", "{track}! Nu händer det saker.", "Jag har väntat hela dagen på det här.", "Tack {name}, du förstår mig."];
+export const MUSIC_HATE = ["Vem satte på {track}?!", "Nej. Nej nej nej. Inte {track}.", "Mina öron har lämnat byggnaden.", "Jag kan inte jobba till det här.", "Vem gav {name} tillgång till jukeboxen?"];
+export const MUSIC_WAR = ["Nej, vi byter. Nu.", "Det här är ett musikkrig och jag tänker vinna.", "Sorry {name}, men jukeboxen är min nu.", "Demokrati är bra, men inte för musik."];
+export const MUSIC_SILENCE_HATE = ["Vem stängde av musiken?!", "Det är för tyst. Jag hör mina egna tankar.", "Tystnad? På Barnhusgatan? Aldrig."];
+export const MUSIC_COMMENT = ["Bra låt.", "Vad är det här för låt?", "*nynnar med*", "Jukeboxen har bra dagar och dåliga dagar.", "Shazam säger: 'Okänd låt från 1906'."];

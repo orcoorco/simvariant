@@ -1,7 +1,23 @@
 // Karaktärernas autonoma AI: behov, nyttobaserade beslut, reaktioner och samtal.
 import type { RoomId, SpotKind } from "../../shared/map.ts";
 import * as A from "./activities.ts";
-import { DAMMBERT_LINES, GHOST_LINES, GUNNAR_LINES, NIGHT_LINES, REACT, SHHH, chance, pick } from "./content.ts";
+import {
+  DAMMBERT_LINES,
+  GHOST_LINES,
+  GUNNAR_LINES,
+  MUSIC_COMMENT,
+  MUSIC_HATE,
+  MUSIC_LOVE,
+  MUSIC_SILENCE_HATE,
+  MUSIC_WAR,
+  NIGHT_LINES,
+  REACT,
+  SHHH,
+  chance,
+  fill,
+  pick,
+} from "./content.ts";
+import { TRACK_BY_ID, type TrackId } from "../../shared/music.ts";
 import { llmDialogue, localDialogue, type Line } from "./dialogue.ts";
 import * as S from "./schemes.ts";
 import { dist, type Actor, type Char, type Npc, type Step, type StimulusOpts, type World } from "./world.ts";
@@ -80,6 +96,11 @@ export function decide(w: World, c: Char) {
     20,
   );
   add("wander", 0.18, () => A.wander(w, c), 8);
+  if (w.time >= w.musicNext) {
+    const cur = w.music.track;
+    const taste = c.c.music;
+    add("music", 0.02 + (cur === taste.hate ? 0.45 : 0) + (cur === "off" ? 0.3 : 0) + (n.kaos > 60 ? 0.1 : 0) - (cur === taste.fav ? 0.4 : 0), () => A.jukebox(w, c), 600);
+  }
   if (night) add("night", 0.25, () => [{ t: "think", text: pick(NIGHT_LINES) }, ...A.wander(w, c)], 60);
 
   // Vilt jokerkort: ibland gör man bara något helt oväntat
@@ -326,6 +347,46 @@ export function vacuumBumps(w: World) {
       w.say(c, pick(["Dammbert! Igen!", "Aj, mina tår!", "Dammbert, vi har pratat om det här.", "Hej Dammbert! Duktig robot.", "Den går efter mig. Jag svär."]), "say", { log: chance(0.2) });
       w.say(v, pick(DAMMBERT_LINES));
       break;
+    }
+  }
+}
+
+// ---------------------------------------------------------------------------
+// Musik: reaktioner när någon byter låt
+export function musicChanged(w: World, by: Actor | null, prev: TrackId) {
+  const track = w.music.track;
+  const info = TRACK_BY_ID[track];
+  const byName = by?.name ?? "jukeboxen";
+  let n = 0;
+  let war = false;
+  for (const c of [...w.chars].sort(() => Math.random() - 0.5)) {
+    if (c === by || c.ctrl === "player" || n >= 4) continue;
+    const taste = c.c.music;
+    const vars = { track: info.name, name: byName };
+    if (track === taste.fav && chance(0.55)) {
+      n++;
+      const line = fill(pick(MUSIC_LOVE), vars);
+      if (w.interruptible(c) && c.anim !== "sleep" && chance(0.6)) w.interrupt(c, [{ t: "wait", dur: R(0.3, 1.5) }, { t: "say", text: line, style: "shout" }, { t: "anim", anim: "dance", dur: 6, act: `Dansar till ${info.name}`, icon: "🎶" }]);
+      else w.later(R(0.5, 2), () => w.say(c, line, "say", { log: chance(0.3) }));
+      if (by?.type === "char") w.relate(c, by, 3);
+    } else if ((track === taste.hate || (track === "off" && prev === taste.fav)) && chance(0.6)) {
+      n++;
+      const line = track === "off" ? pick(MUSIC_SILENCE_HATE) : fill(pick(MUSIC_HATE), vars);
+      w.later(R(0.5, 2), () => w.say(c, line, "say", { log: chance(0.4) }));
+      if (by?.type === "char") w.relate(c, by, -3);
+      // Musikkrig: gå och byt tillbaka
+      if (!war && by?.type === "char" && w.interruptible(c) && chance(0.12 + c.c.traits.kaos * 0.2)) {
+        war = true;
+        w.musicNext = w.time + 15;
+        w.later(R(1.5, 3), () => {
+          if (!w.interruptible(c)) return;
+          w.addLog(`Musikkrig! ${c.name} tänker inte acceptera ${info.name}.`, "⚔️", "chaos", c.id, "Loungen");
+          w.interrupt(c, [{ t: "say", text: fill(pick(MUSIC_WAR), vars), style: "shout", wait: 0.3 }, ...A.jukebox(w, c, taste.fav)]);
+        });
+      }
+    } else if (chance(0.05)) {
+      n++;
+      w.later(R(1, 4), () => w.say(c, pick(MUSIC_COMMENT)));
     }
   }
 }

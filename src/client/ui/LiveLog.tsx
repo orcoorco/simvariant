@@ -38,7 +38,7 @@ export function LiveLog({ open, onToggle, onFocus }: { open: boolean; onToggle: 
           </div>
           <ol className="log-list">
             {entries.map((e) => (
-              <li key={e.id} className={`log-item tag-${e.tag} ${e.who ? "clickable" : ""}`} onClick={() => e.who && onFocus(e.who)}>
+              <li key={`${e.id}-${e.ts}`} className={`log-item tag-${e.tag} ${e.who ? "clickable" : ""}`} onClick={() => e.who && onFocus(e.who)}>
                 <span className="log-time">{fmtTime(e.ts)}</span>
                 <span className="log-icon" aria-hidden>
                   {e.icon}

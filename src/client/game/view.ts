@@ -890,6 +890,12 @@ export class GameView {
       } else if (f.kind === "server_rack") {
         const [x, y] = P((f.x + M) * TILE + 8, (f.y + M) * TILE);
         out.push({ x, y, r: 14 * s, color: `rgba(61,220,132,${0.15 * night})`, strength: 0.6 });
+      } else if (f.kind === "jukebox") {
+        // jukeboxen lyser i takt med musiken (färgen skiftar långsamt)
+        const playing = world.music.track !== "off";
+        const hue = Math.floor((performance.now() / 40) % 360);
+        const [x, y] = P((f.x + M) * TILE + 8, (f.y + M) * TILE - 6);
+        out.push({ x, y, r: (playing ? 34 : 18) * s, color: playing ? `hsla(${hue},90%,62%,${0.3 * night + 0.06})` : `rgba(140,110,200,${0.12 * night})`, strength: playing ? 0.9 : 0.5 });
       } else if (f.kind === "kakelugn" && night > 0.3) {
         const [x, y] = P((f.x + M) * TILE + 8, (f.y + M) * TILE + 2);
         out.push({ x, y, r: 26 * s, color: `rgba(255,150,60,${0.2 * night})`, strength: 0.7 });

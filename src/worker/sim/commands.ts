@@ -8,6 +8,7 @@ import { IMPROVISE, REACT, chance, cap, fill, pick } from "./content.ts";
 import { localAnswer } from "./dialogue.ts";
 import { callVacuum, summonGhost, summonPigeon, summonStrindberg } from "./events.ts";
 import * as S from "./schemes.ts";
+import { PLAYABLE, TRACKS, TRACK_BY_ID, findTrack, type TrackId } from "../../shared/music.ts";
 import { dist, type Char, type Step, type World } from "./world.ts";
 
 export interface PromptResult {
@@ -34,6 +35,7 @@ export type Intent =
   | { do: "hug"; person: string }
   | { do: "chat"; person: string; topic?: string }
   | { do: "sit"; target?: string }
+  | { do: "music"; track?: string }
   | { do: "improvise"; text: string };
 
 const norm = (s: string) =>
@@ -543,6 +545,12 @@ export function intentsToSteps(w: World, c: Char, intents: Intent[]): Step[] {
         out.push({ t: "spot", kind, room: t?.kind === "room" ? t.id : undefined, label: "Sätta sig" }, { t: "anim", anim: "sit", dur: 8 });
         break;
       }
+      case "music": {
+        const t = it.track ? (TRACK_BY_ID[it.track as TrackId] ? (it.track as TrackId) : findTrack(it.track)) : null;
+        const track: TrackId = t ?? (w.music.track !== c.c.music.fav ? c.c.music.fav : pick(PLAYABLE.filter((x) => x !== w.music.track)));
+        out.push(...A.jukebox(w, c, track));
+        break;
+      }
       case "improvise": {
         const x = it.text.replace(/^(att|och)\s+/i, "").slice(0, 60);
         out.push(
@@ -665,6 +673,15 @@ function parseClause(w: World, c: Char, raw: string, quotes: string[]): Intent[]
   if (m) return [{ do: "wait", seconds: m[2] ? +m[2] : 5 }];
   m = s.match(/^(tank|fundera|grubbla)(?:\s+pa)?\s*(.*)$/);
   if (m) return [{ do: "think", text: quoted() ?? (sOrig.replace(/^\S+\s*(på)?\s*/i, "") || "Hmm...") }];
+
+  // --- musik ---
+  if (
+    /\b(musik|musiken|lat|laten|latar|skiva|spellista|playlist|jukebox|jukeboxen|soundtrack)\b/.test(s) ||
+    (/^(spela|satt pa|lagg pa|byt till)\b/.test(s) && !/arkad|tv-?spel|spelet|pingis|kort/.test(s) && findTrack(s) && !/\b(rave|kongatag|konga|karaoke)\b/.test(s))
+  ) {
+    if (/^(stang av|stoppa|pausa|tysta|sluta spela)\b|\bingen musik\b|\btyst\b/.test(s)) return [{ do: "music", track: "off" }];
+    return [{ do: "music", track: findTrack(s) ?? undefined }];
+  }
 
   // --- upptåg (scheman) ---
   const schemes: [RegExp, string][] = [
@@ -842,6 +859,7 @@ async function parseLlm(w: World, c: Char, text: string): Promise<{ intents: Int
     '{"do":"scheme","name":"<upptåg>","target":"<rum/person valfritt>","topic":"<valfritt>"}',
     '{"do":"hug","person":"<person-id>"}  {"do":"chat","person":"<person-id>","topic":"..."}  {"do":"follow","person":"<id>","seconds":20}',
     '{"do":"think","text":"..."}  {"do":"wait","seconds":3}',
+    `{"do":"music","track":"${TRACKS.map((t) => t.id).join("|")}"}  (byt låt i jukeboxen i loungen; off = stäng av)`,
     'Svara som JSON: {"reply":"kort kommentar i karaktär (max 80 tecken)","plan":[ ...max 8 steg... ]}',
   ].join("\n");
   const user = `Karaktär: ${c.c.name} (${c.c.title}). Personlighet: ${c.c.quirkText} Står just nu ${w.roomOf(c)?.inRoom ?? "på kontoret"}.\nSpelarens instruktion: ${text}`;
@@ -896,6 +914,9 @@ async function parseLlm(w: World, c: Char, text: string): Promise<{ intents: Int
       case "wait":
         intents.push({ do: "wait", seconds: typeof p.seconds === "number" ? p.seconds : 3 });
         break;
+      case "music":
+        intents.push({ do: "music", track: str(p.track) || undefined });
+        break;
     }
   }
   if (!intents.length) return null;
@@ -944,6 +965,7 @@ function egg(w: World, c: Char, text: string): { steps: Step[]; reply: string } 
     const room = w.roomOf(c)?.id ?? "hall";
     w.disco = room;
     w.worldDirty = true;
+    w.setMusic(c, "disco", { log: false });
     w.addLog(`${c.name} satte på ABBA. Hela rummet dansar.`, "🪩", "secret", c.id);
     for (const o of w.charsInRoom(room)) if (o !== c && w.interruptible(o)) w.interrupt(o, [{ t: "anim", anim: "dance", dur: 15 }]);
     w.later(18, () => {

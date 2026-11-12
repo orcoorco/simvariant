@@ -1,6 +1,7 @@
 // Meddelanden mellan server (Durable Object) och klient över WebSocket.
 import type { Dir, Pose, RoomId } from "./map.ts";
 import type { NpcKind } from "./consultants.ts";
+import type { MusicState } from "./music.ts";
 
 export type Anim =
   | "idle"
@@ -114,6 +115,7 @@ export interface WorldState {
   stats: { kaffe: number; moten: number; kaos: number; ideer: number; kramar: number };
   banner: string | null; // löpsedel/banderoll över kontoret
   special: string | null; // aktiv specialhändelse (för UI)
+  music: MusicState; // delad bakgrundsmusik
 }
 
 export type FxKind =

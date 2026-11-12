@@ -26,6 +26,7 @@ import {
   pick,
 } from "./content.ts";
 import * as S from "./schemes.ts";
+import { PLAYABLE, TRACK_BY_ID } from "../../shared/music.ts";
 import { dist, type Char, type Npc, type Step, type World } from "./world.ts";
 
 const R = (a: number, b: number) => a + Math.random() * (b - a);
@@ -314,6 +315,29 @@ const EVENTS: Ev[] = [
       return true;
     },
   ],
+  [
+    0.5,
+    (w) => {
+      const v = npc(w, "dammbert");
+      if (!v.visible || w.activeBig()) return false;
+      const track = pick(PLAYABLE.filter((t) => t !== w.music.track));
+      w.assign(v, [
+        { t: "go", x: 21, y: 61 },
+        { t: "say", text: "*BONK*" },
+        {
+          t: "do",
+          fn: (w, a) => {
+            w.addLog(`Dammbert körde in i jukeboxen. Den bytte till ${TRACK_BY_ID[track].name}.`, "🤖", "world", undefined, "Loungen");
+            w.setMusic(a, track, { log: false });
+            w.fx("notes", 20.5, 60.2, 2.5, 2);
+          },
+        },
+        { t: "say", text: "BEEP. DAMMBERT ÄR DJ NU." },
+        { t: "wait", dur: 3 },
+      ]);
+      return true;
+    },
+  ],
   [0.25, (w) => summonStrindberg(w)],
   [0.25, (w) => (w.nightFactor() > 0.5 || chance(0.3) ? summonGhost(w) : false)],
 ];
@@ -455,7 +479,7 @@ export function poke(w: World, what: string): boolean {
         o.x = f.x + f.w / 2;
         o.y = f.y + 0.2;
       }
-      w.say(o, fill(pick(lines), { clock: w.worldState().clock, sketch: pick(WHITEBOARD_SKETCHES) }), "say");
+      w.say(o, fill(pick(lines), { clock: w.worldState().clock, sketch: pick(WHITEBOARD_SKETCHES), track: TRACK_BY_ID[w.music.track].name }), "say");
       return true;
     }
   }

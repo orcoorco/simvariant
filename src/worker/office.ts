@@ -60,7 +60,7 @@ export class Office extends DurableObject<Env> {
       this.migrate();
       await this.seed();
       this.world = new World(
-        { decide: brain.decide, updateNeeds: brain.updateNeeds, react: brain.react, npcThink: brain.npcThink, worldTick },
+        { decide: brain.decide, updateNeeds: brain.updateNeeds, react: brain.react, npcThink: brain.npcThink, worldTick, musicChanged: brain.musicChanged },
         makeLlm(env),
       );
       this.restore();

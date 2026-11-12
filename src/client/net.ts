@@ -57,6 +57,7 @@ export class WorldStore {
   llm = "lokal motor";
   viewers = 0;
   connected = false;
+  serverOffset = 0; // serverns Date.now() minus klientens (ms)
   lastAck: { ok: boolean; text: string; plan?: string[]; via?: string; at: number } | null = null;
   version = 0;
   private ws: WebSocket | null = null;
@@ -137,6 +138,7 @@ export class WorldStore {
   private handle(m: ServerMsg) {
     switch (m.t) {
       case "hello":
+        this.serverOffset = m.ts - Date.now();
         this.me = m.me;
         this.world = m.world;
         this.frames = [];
@@ -148,6 +150,7 @@ export class WorldStore {
         this.bump();
         break;
       case "snap":
+        this.serverOffset = this.serverOffset * 0.9 + (m.ts - Date.now()) * 0.1;
         this.pushFrame(m.c, m.n);
         break;
       case "detail":

@@ -256,7 +256,7 @@ h3 {
   display: flex;
   gap: 6px;
   align-items: center;
-  justify-content: center;
+  justify-content: safe center;
   min-width: 0;
   overflow: hidden;
 }
@@ -935,5 +935,68 @@ h3 {
   .minimap-wrap {
     bottom: auto;
     top: calc(var(--top) + 10px);
+  }
+}
+
+/* ------------------------------------------------------------- musik */
+.nowplaying {
+  flex-shrink: 0;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 1px 8px 1px 2px;
+  max-width: 420px;
+  min-width: 0;
+}
+.nowplaying.on {
+  border-color: #6b5bd6;
+}
+.np-toggle {
+  background: #2a2c3d;
+  border: 1px solid var(--line-hi);
+  border-radius: 3px;
+  cursor: pointer;
+  width: 24px;
+  height: 22px;
+  display: grid;
+  place-items: center;
+  font-size: 12px;
+  padding: 0;
+}
+.np-toggle:hover {
+  background: #35384f;
+}
+.np-text {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  min-width: 96px;
+}
+.np-text.playing {
+  background: linear-gradient(90deg, #f1eee6, #c9b8ff, #f1eee6);
+  background-size: 200% 100%;
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+  animation: shimmer 3s linear infinite;
+}
+.np-who {
+  color: var(--muted);
+}
+.np-text.playing .np-who {
+  color: transparent;
+}
+.np-vol {
+  width: 64px;
+  accent-color: #c9b8ff;
+}
+@keyframes shimmer {
+  to {
+    background-position: -200% 0;
+  }
+}
+@media (max-width: 1400px) {
+  .hide-lg {
+    display: none;
   }
 }

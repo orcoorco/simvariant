@@ -53,6 +53,7 @@ export const KIND_LABEL: Record<FurnKind, string> = {
   fruit_bowl: "Fruktskålen",
   projector_screen: "Projektorduken",
   phone_booth: "Telefonen",
+  jukebox: "Jukeboxen",
 };
 
 const PX = 6; // sidomarginal i sprite-canvas
@@ -72,7 +73,7 @@ export interface FurnDrawable {
 
 const COUNTERISH = new Set<FurnKind>(["counter", "sink", "stove", "dishwasher", "fridge", "fruit_bowl", "water_cooler", "printer", "coffee_machine"]);
 const SEATS = new Set<FurnKind>(["sofa", "armchair", "bench", "toilet"]);
-const DYN = new Set<FurnKind>(["coffee_machine", "server_rack", "arcade", "printer", "water_cooler", "monitor", "kakelugn"]);
+const DYN = new Set<FurnKind>(["coffee_machine", "server_rack", "arcade", "printer", "water_cooler", "monitor", "kakelugn", "jukebox"]);
 
 type Ctx = CanvasRenderingContext2D;
 
@@ -247,6 +248,9 @@ export function buildFurniture(map: OfficeMap): { items: FurnDrawable[]; overhea
         break;
       case "arcade":
         arcade(c);
+        break;
+      case "jukebox":
+        jukebox(c);
         break;
       case "toilet":
         R(c, 4, 0, 8, 4, "#f4f6f6");
@@ -794,6 +798,41 @@ function arcade(c: Ctx) {
   }
 }
 
+function jukebox(c: Ctx) {
+  R(c, 1, 15, 15, 1, "rgba(0,0,0,0.3)");
+  // träkropp med välvd topp
+  R(c, 2, -11, 12, 26, "#7a3b1f");
+  R(c, 3, -14, 10, 3, "#7a3b1f");
+  R(c, 4, -16, 8, 2, "#7a3b1f");
+  R(c, 5, -17, 6, 1, "#7a3b1f");
+  R(c, 2, -11, 1, 26, "#a0582f");
+  R(c, 13, -11, 1, 26, "#55260f");
+  R(c, 3, -14, 1, 3, "#a0582f");
+  // neonrör (grundfärg – glöden ritas dynamiskt)
+  R(c, 3, -11, 1, 22, "#b8337f");
+  R(c, 12, -11, 1, 22, "#b8337f");
+  R(c, 4, -14, 1, 3, "#c79a1e");
+  R(c, 11, -14, 1, 3, "#c79a1e");
+  R(c, 5, -16, 6, 1, "#2a8fb0");
+  // fönster med skivor
+  R(c, 5, -13, 6, 7, "#1a1030");
+  R(c, 5, -13, 6, 1, "#2c1d4f");
+  // panel med valknappar
+  R(c, 4, -5, 8, 3, "#f2e6c9");
+  R(c, 4, -5, 8, 1, "#fff7e3");
+  const btn = ["#e33b3b", "#ffd23f", "#3ddc84", "#4cc9f0"];
+  for (let i = 0; i < 4; i++) R(c, 5 + i * 2, -4, 1, 1, btn[i]);
+  // högtalargaller
+  R(c, 4, -1, 8, 9, "#3a1d10");
+  for (let y = 0; y < 8; y += 2) R(c, 4, y, 8, 1, "#5b2f18");
+  R(c, 7, -1, 2, 9, "#4a2614");
+  // kromsockel
+  R(c, 2, 11, 12, 4, "#aeb4bd");
+  R(c, 2, 11, 12, 1, "#f2f4f7");
+  R(c, 2, 14, 12, 1, "#7d838c");
+  R(c, 4, 12, 2, 1, "#f2f4f7");
+}
+
 function kakelugn(c: Ctx, v: number) {
   const base = v ? "#e9eef2" : "#6e9f86";
   const hi = v ? "#ffffff" : "#93c2a8";
@@ -1019,6 +1058,44 @@ export function drawFurnDyn(c: Ctx, d: FurnDrawable, t: number, world: WorldStat
       }
       R(c, sx + 3 + Math.round(Math.sin(t * 2) * 2), sy + 5, 2, 1, "#4cc9f0");
       if (ph % 3 === 0) R(c, sx + 4, sy + 3, 1, 1, "#fff");
+      break;
+    }
+    case "jukebox": {
+      const playing = !!world && world.music.track !== "off";
+      const tubes = ["#ff5ec4", "#ffd23f", "#3ddc84", "#4cc9f0", "#c9b8ff"];
+      const ph = Math.floor(t * (playing ? 6 : 1));
+      // neonrören pulserar runt valvet
+      for (let i = 0; i < 11; i++) {
+        const col = playing ? tubes[(i + ph) % tubes.length] : "#6d4a8f";
+        R(c, wx + 3, wy - 11 + i * 2, 1, 2, col);
+        R(c, wx + 12, wy - 11 + i * 2, 1, 2, playing ? tubes[(i + ph + 2) % tubes.length] : "#6d4a8f");
+      }
+      R(c, wx + 4, wy - 14, 1, 3, playing ? tubes[ph % 5] : "#7a6a3a");
+      R(c, wx + 11, wy - 14, 1, 3, playing ? tubes[(ph + 3) % 5] : "#7a6a3a");
+      R(c, wx + 5, wy - 16, 6, 1, playing ? tubes[(ph + 1) % 5] : "#2a6f88");
+      // skivan snurrar i fönstret
+      const cx = wx + 8;
+      const cy = wy - 9;
+      ellipse(c, cx, cy, 2, 2, "#0d0d10");
+      if (playing) {
+        const a = t * 9;
+        R(c, Math.round(cx + Math.cos(a) * 1.5), Math.round(cy + Math.sin(a) * 1.5), 1, 1, "#5c5c66");
+      }
+      R(c, cx, cy, 1, 1, playing ? "#e33b3b" : "#7a2b2b");
+      // noter som stiger
+      if (playing) {
+        for (let i = 0; i < 3; i++) {
+          const p = (t * 0.45 + i / 3) % 1;
+          const nx = Math.round(wx + 8 + Math.sin(p * 6 + i * 2) * 5);
+          const ny = Math.round(wy - 20 - p * 16);
+          c.globalAlpha = 0.9 * (1 - p);
+          const col = tubes[(i + 1) % tubes.length];
+          R(c, nx, ny, 2, 2, col);
+          R(c, nx + 1, ny - 4, 1, 4, col);
+          if (i % 2 === 0) R(c, nx + 2, ny - 4, 1, 1, col);
+          c.globalAlpha = 1;
+        }
+      }
       break;
     }
     case "printer": {

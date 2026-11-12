@@ -378,7 +378,8 @@ export type FurnKind =
   | "trash"
   | "fruit_bowl"
   | "projector_screen"
-  | "phone_booth";
+  | "phone_booth"
+  | "jukebox";
 
 export interface Furn {
   id: string;
@@ -422,7 +423,8 @@ export type SpotKind =
   | "coatrack"
   | "water"
   | "entrance"
-  | "fruit";
+  | "fruit"
+  | "jukebox";
 
 export type Pose = "stand" | "sit" | "lie";
 
@@ -645,6 +647,7 @@ function furnitureList(): Furn[] {
   add("armchair", 21, 71, 1, 1, "lounge", { dir: RIGHT });
   add("armchair", 25, 72, 1, 1, "lounge", { dir: UP });
   add("projector_screen", 24, 60, 3, 1, "lounge", { wall: true, solid: false });
+  add("jukebox", 20, 61, 1, 1, "lounge", { label: "Jukeboxen" });
   add("plant", 29, 72, 1, 1, "lounge", { variant: 1 });
 
   // ---------- Kungsbalkongen ----------
@@ -701,6 +704,7 @@ function spotList(f: Furn[]): Spot[] {
   add("kakelugn", 9, 44, LEFT, "hall", "stand", "kakelugnen i entrén", find("kakelugn", 8, 44));
   add("coatrack", 9, 37, LEFT, "hall", "stand", "hatthyllan", find("coat_rack", 8, 35));
   add("phone", 8, 49, RIGHT, "samtal", "sit", "samtalsfåtöljen");
+  add("jukebox", 20, 62, UP, "lounge", "stand", "jukeboxen", find("jukebox", 20, 61));
   add("entrance", 8, 33, LEFT, "hall", "stand", "entrédörren");
   // Fönster
   add("window", 1, 9, LEFT, "pentry", "stand", "pentryfönstret");

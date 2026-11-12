@@ -11,6 +11,7 @@ const EXAMPLES = [
   "Starta ett kongatåg",
   "Krama Pedram och fråga hur han mår",
   "Smyg till serverrummet och viska 'hallå?'",
+  "Sätt på jazz i jukeboxen och dansa",
 ];
 
 const QUICK: [string, string][] = [
@@ -18,6 +19,7 @@ const QUICK: [string, string][] = [
   ["🪩", "Starta ett rave"],
   ["🚨", "Kalla till krismöte"],
   ["💃", "Starta ett kongatåg"],
+  ["🎵", "Byt musik"],
   ["🌿", "Prata med Bengt"],
   ["🏛️", "Gå ut på Kungsbalkongen och håll ett tal"],
 ];

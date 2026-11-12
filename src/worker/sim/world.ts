@@ -33,6 +33,7 @@ import type {
   WorldState,
 } from "../../shared/protocol.ts";
 import { buildCostMap, findPath, type P } from "./path.ts";
+import { TRACK_BY_ID, type MusicState, type TrackId } from "../../shared/music.ts";
 import type { LlmClient } from "./llm.ts";
 
 // ---------------------------------------------------------------------------
@@ -148,6 +149,7 @@ export interface Hooks {
   react: (w: World, c: Char, src: Actor, kind: string, opts: StimulusOpts) => void;
   npcThink: (w: World, n: Npc) => void;
   worldTick: (w: World, dt: number) => void;
+  musicChanged: (w: World, by: Actor | null, prev: TrackId) => void;
 }
 
 export interface StimulusOpts {
@@ -213,6 +215,8 @@ export class World {
   banner: string | null = null;
   bannerUntil = 0;
   special: string | null = null;
+  music: MusicState = { track: "lofi", by: null, at: Date.now() };
+  musicNext = 0; // tidigaste sim-tid då AI:n får byta musik igen
   clock = { hour: 12, minute: 0, weekday: "", month: 1, day: 1 };
   clockT = -10;
   nextWorldEvent = 40;
@@ -605,6 +609,22 @@ export class World {
         if (++n >= max) break;
       }
     }
+  }
+
+  // ---------------------------------------------------------------- musik
+  /** Byt låt i jukeboxen. Returnerar false om samma låt redan spelas. */
+  setMusic(by: Actor | null, track: TrackId, opts: { log?: boolean; react?: boolean } = {}): boolean {
+    if (this.music.track === track) return false;
+    const prev = this.music.track;
+    this.music = { track, by: by?.id ?? null, at: Date.now() };
+    this.worldDirty = true;
+    const info = TRACK_BY_ID[track];
+    if (opts.log !== false) {
+      const who = by?.name ?? "Jukeboxen";
+      this.addLog(track === "off" ? `${who} stängde av musiken.` : by ? `${who} satte på ${info.name} i jukeboxen.` : `Jukeboxen bytte till ${info.name}.`, info.icon, "event", by?.id, "Loungen");
+    }
+    if (opts.react !== false) this.hooks.musicChanged(this, by, prev);
+    return true;
   }
 
   // ---------------------------------------------------------------- scheman
@@ -1136,6 +1156,7 @@ export class World {
       stats: { ...this.stats },
       banner: this.banner,
       special: this.special,
+      music: { ...this.music },
     };
   }
 
@@ -1161,7 +1182,7 @@ export class World {
         mugHidden: c.mugHidden,
         thought: c.thought,
       })),
-      state: { plantSize: this.plantSize, stats: this.stats, weather: this.weather, logSeq: this.logSeq },
+      state: { plantSize: this.plantSize, stats: this.stats, weather: this.weather, logSeq: this.logSeq, music: this.music },
     });
   }
 
@@ -1170,7 +1191,7 @@ export class World {
       const d = JSON.parse(json) as {
         savedAt: number;
         chars: { id: string; x: number; y: number; needs: Needs; mem: string[]; rel: Record<string, number>; coffees: number; mugHidden: Char["mugHidden"]; thought: string }[];
-        state: { plantSize: number; stats: World["stats"]; weather: World["weather"]; logSeq: number };
+        state: { plantSize: number; stats: World["stats"]; weather: World["weather"]; logSeq: number; music?: MusicState };
       };
       for (const s of d.chars) {
         const c = this.byId.get(s.id);
@@ -1195,6 +1216,7 @@ export class World {
       this.stats = { ...this.stats, ...d.state.stats };
       this.weather = d.state.weather ?? this.weather;
       this.logSeq = Math.max(this.logSeq, d.state.logSeq ?? 1);
+      if (d.state.music && TRACK_BY_ID[d.state.music.track]) this.music = { ...d.state.music };
       return d.savedAt ?? Date.now();
     } catch (err) {
       console.error("restore", err);

@@ -2,6 +2,7 @@ import { useCallback, useEffect, useRef, useState } from "react";
 import { logout } from "./api.ts";
 import { GameView } from "./game/view.ts";
 import { store } from "./net.ts";
+import { music } from "./music.ts";
 import { initSoundPref, playSound, setSoundEnabled } from "./sound.ts";
 import { useStore } from "./ui/hooks.ts";
 import { Inspector } from "./ui/Inspector.tsx";
@@ -34,6 +35,7 @@ export function App() {
   const [miniOpen, setMiniOpen] = useState(() => window.innerWidth > 700);
   const [sound, setSound] = useState(() => initSoundPref());
   const [names, setNames] = useState(false);
+  const [musicOn, setMusicOn] = useState(() => music.isEnabled());
   const retro = useRef(false);
   const remindedFor = useRef<string | null>(null);
 
@@ -82,6 +84,24 @@ export function App() {
       setFollowing((cur) => (cur === f ? cur : f));
     }, 400);
     return () => window.clearInterval(t);
+  }, []);
+
+  // Delad bakgrundsmusik: följ serverns låtval
+  const mus = s.world?.music;
+  useEffect(() => {
+    if (!mus) return;
+    music.setServerOffset(store.serverOffset);
+    music.setState(mus);
+  }, [mus?.track, mus?.at]);
+  // Webbläsare kräver en användargest innan ljud får starta
+  useEffect(() => {
+    const go = () => music.resumeIfEnabled();
+    window.addEventListener("pointerdown", go, { once: true });
+    window.addEventListener("keydown", go, { once: true });
+    return () => {
+      window.removeEventListener("pointerdown", go);
+      window.removeEventListener("keydown", go);
+    };
   }, []);
 
   // Påminnelse om standardlösenordet
@@ -156,6 +176,13 @@ export function App() {
         }}
         names={names}
         onNames={() => setNames((n) => !n)}
+        musicOn={musicOn}
+        onMusic={() => {
+          music.setServerOffset(store.serverOffset);
+          if (s.world) music.setState(s.world.music);
+          music.setEnabled(!musicOn);
+          setMusicOn(!musicOn);
+        }}
       />
 
       {s.world?.banner && (

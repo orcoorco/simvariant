@@ -141,7 +141,10 @@ export function HelpModal({ onClose, llm }: { onClose: () => void; llm: string }
           <li>"Gå till närmaste whiteboard och rita en obegriplig arkitekturskiss"</li>
           <li>"Starta ett rave / kongatåg / stolrace / krismöte / karaoke / pausgympa"</li>
           <li>"Krama Sara D", "Göm Staffans kopp", "Prata med Bengt", "Smyg till serverrummet"</li>
+          <li>"Byt musik", "Spela jazz", "Sätt på något lugnt", "Stäng av musiken" – jukeboxen står i loungen</li>
         </ul>
+        <h3>Musik</h3>
+        <p className="muted">Musiken är delad – alla hör samma låt (slå på den med 🔇/🔊 uppe i mitten). Konsulterna har olika musiksmak och byter gärna låt. Ibland blir det musikkrig.</p>
         <p className="muted">När din instruktion är klar och du varit inaktiv i 25 sekunder tar autopiloten över igen.</p>
         <h3>Hemligheter</h3>
         <p className="muted">

@@ -2,15 +2,22 @@
 let ctx: AudioContext | null = null;
 let enabled = false;
 
-export function setSoundEnabled(on: boolean) {
-  enabled = on;
-  if (on && !ctx) {
+/** Delad AudioContext (skapas vid första användargesten). */
+export function getAudioContext(create = true): AudioContext | null {
+  if (!ctx && create) {
     try {
       ctx = new AudioContext();
     } catch {
       ctx = null;
     }
   }
+  if (ctx && ctx.state === "suspended") void ctx.resume();
+  return ctx;
+}
+
+export function setSoundEnabled(on: boolean) {
+  enabled = on;
+  if (on) getAudioContext();
   try {
     localStorage.setItem("sv_sound", on ? "1" : "0");
   } catch {

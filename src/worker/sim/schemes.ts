@@ -28,9 +28,21 @@ import {
   pick,
 } from "./content.ts";
 import { llmIdea } from "./dialogue.ts";
+import type { TrackId } from "../../shared/music.ts";
 import { dist, type Char, type Scheme, type Step, type World } from "./world.ts";
 
 const R = (a: number, b: number) => a + Math.random() * (b - a);
+
+/** Byt musik under ett upptåg och återställ efteråt (om ingen annan hunnit byta). */
+function themeMusic(w: World, s: Scheme, by: Char | null, track: TrackId) {
+  const prev = w.music.track;
+  if (prev === track || !w.setMusic(by, track, { react: false })) return;
+  const prevEnd = s.onEnd;
+  s.onEnd = (w) => {
+    prevEnd?.(w);
+    if (w.music.track === track) w.setMusic(null, prev, { react: false });
+  };
+}
 
 function pool(w: World, except: Char[], near?: Char, max = 99): Char[] {
   const list = w.chars.filter((c) => !except.includes(c) && w.interruptible(c));
@@ -103,6 +115,7 @@ export function rave(w: World, init: Char, room?: RoomId): boolean {
       fn: (w) => {
         w.disco = r;
         w.worldDirty = true;
+        themeMusic(w, s, init, "disco");
         w.sound("tada");
         w.fx("notes", init.x, init.y - 1.5, 3, 3);
         w.stimulus(init, "rave", 0.9, { scheme: s.id, radius: 14, max: 5 });
@@ -495,6 +508,7 @@ export function firedrill(w: World): boolean {
   const s = w.newScheme("firedrill", null, { label: "Brandövning!", big: true, dur: 32 });
   w.alarm = true;
   w.worldDirty = true;
+  themeMusic(w, s, null, "off");
   w.sound("alarm");
   w.addLog(WORLD_EVENT_TEXT.firedrill[0], "🚨", "world");
   for (const c of w.chars) {

@@ -34,6 +34,8 @@ import {
   pick,
 } from "./content.ts";
 import { localAnswer } from "./dialogue.ts";
+import { MUSIC_PICK } from "./content.ts";
+import { PLAYABLE, TRACK_BY_ID, type TrackId } from "../../shared/music.ts";
 import * as S from "./schemes.ts";
 import { dist, type Char, type Step, type World } from "./world.ts";
 
@@ -591,5 +593,34 @@ export function ask(w: World, c: Char, target: Char, question: string): Step[] {
       },
     },
     { t: "wait", dur: 3 },
+  ];
+}
+
+/** Gå till jukeboxen och byt musik (till egen favorit om inget anges). */
+export function jukebox(w: World, c: Char, track?: TrackId): Step[] {
+  const want: TrackId =
+    track ?? (chance(0.7) && w.music.track !== c.c.music.fav ? c.c.music.fav : pick(PLAYABLE.filter((t) => t !== w.music.track && t !== c.c.music.hate)));
+  const info = TRACK_BY_ID[want];
+  return [
+    { t: "act", act: "Går till jukeboxen", icon: "🎵" },
+    { t: "spot", kind: "jukebox", label: "Gå till jukeboxen" },
+    { t: "anim", anim: "point", dur: 1.6, act: `Väljer låt: ${info.name}`, label: want === "off" ? "Stänga av musiken" : `Sätta på ${info.name}` },
+    {
+      t: "do",
+      fn: (w) => {
+        if (w.music.track === want) {
+          w.say(c, want === "off" ? "Det är redan tyst..." : `Det spelas ju redan ${info.name}!`);
+          return;
+        }
+        w.setMusic(c, want);
+        w.musicNext = w.time + (c.ctrl === "player" ? 150 : 270);
+        w.say(c, pick(MUSIC_PICK[want] ?? ["Ny låt!"]), want === "disco" ? "shout" : "say", { log: true });
+        if (want !== "off") w.fx("notes", 20.5, 60.2, 3, 3);
+        w.remember(c, `satte på ${info.name}`);
+        if (want === "off") return [{ t: "anim", anim: "idle", dur: 1.5 }];
+      },
+    },
+    { t: "anim", anim: want === "off" ? "idle" : "dance", dur: 4 },
+    { t: "leave" },
   ];
 }
