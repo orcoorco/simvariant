@@ -892,7 +892,7 @@ export class GameView {
         out.push({ x, y, r: 14 * s, color: `rgba(61,220,132,${0.15 * night})`, strength: 0.6 });
       } else if (f.kind === "jukebox") {
         // jukeboxen lyser i takt med musiken (färgen skiftar långsamt)
-        const playing = world.music.track !== "off";
+        const playing = !!world.music && world.music.track !== "off";
         const hue = Math.floor((performance.now() / 40) % 360);
         const [x, y] = P((f.x + M) * TILE + 8, (f.y + M) * TILE - 6);
         out.push({ x, y, r: (playing ? 34 : 18) * s, color: playing ? `hsla(${hue},90%,62%,${0.3 * night + 0.06})` : `rgba(140,110,200,${0.12 * night})`, strength: playing ? 0.9 : 0.5 });

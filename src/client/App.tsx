@@ -179,7 +179,7 @@ export function App() {
         musicOn={musicOn}
         onMusic={() => {
           music.setServerOffset(store.serverOffset);
-          if (s.world) music.setState(s.world.music);
+          if (s.world?.music) music.setState(s.world.music);
           music.setEnabled(!musicOn);
           setMusicOn(!musicOn);
         }}

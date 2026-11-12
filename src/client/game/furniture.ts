@@ -1061,7 +1061,7 @@ export function drawFurnDyn(c: Ctx, d: FurnDrawable, t: number, world: WorldStat
       break;
     }
     case "jukebox": {
-      const playing = !!world && world.music.track !== "off";
+      const playing = !!world?.music && world.music.track !== "off";
       const tubes = ["#ff5ec4", "#ffd23f", "#3ddc84", "#4cc9f0", "#c9b8ff"];
       const ph = Math.floor(t * (playing ? 6 : 1));
       // neonrören pulserar runt valvet

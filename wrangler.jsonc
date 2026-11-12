@@ -10,7 +10,10 @@
     "run_worker_first": ["/api/*"]
   },
   "durable_objects": {
-    "bindings": [{ "name": "OFFICE", "class_name": "Office" }]
+    "bindings": [{ "name": "OFFICE", "class_name": "Office" }],
+    // Kontoret går aldrig i viloläge (simuleringen tickar och WebSockets är öppna),
+    // så uppskjutna kodbyten skulle bara fördröja nya versioner. Byt direkt i stället.
+    "code_update_strategy": { "mode": "immediate" }
   },
   "migrations": [{ "tag": "v1", "new_sqlite_classes": ["Office"] }]
 }
