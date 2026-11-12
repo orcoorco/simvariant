@@ -3,12 +3,19 @@ import { changePassword, login } from "../api.ts";
 
 function Modal({ title, onClose, children }: { title: string; onClose: () => void; children: ReactNode }) {
   const ref = useRef<HTMLDivElement>(null);
+  // onClose skapas på nytt vid varje omritning (livedata ~1/s) – håll den i en ref
+  // så att effekterna nedan bara körs när modalen öppnas.
+  const closeRef = useRef(onClose);
+  closeRef.current = onClose;
   useEffect(() => {
-    const onKey = (e: KeyboardEvent) => e.key === "Escape" && onClose();
+    const onKey = (e: KeyboardEvent) => e.key === "Escape" && closeRef.current();
     window.addEventListener("keydown", onKey);
-    ref.current?.querySelector<HTMLElement>("input,button")?.focus();
     return () => window.removeEventListener("keydown", onKey);
-  }, [onClose]);
+  }, []);
+  useEffect(() => {
+    const first = ref.current?.querySelector<HTMLElement>("input") ?? ref.current?.querySelector<HTMLElement>("button");
+    first?.focus();
+  }, []);
   return (
     <div className="modal-backdrop" onMouseDown={(e) => e.target === e.currentTarget && onClose()}>
       <div className="panel modal" role="dialog" aria-modal="true" aria-label={title} ref={ref}>
